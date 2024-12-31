@@ -20,6 +20,13 @@ class MyApp extends StatelessWidget {
               Icons.camera,
               Icons.photo,
             ],
+            itemNames: [
+              "Profile",
+              "Messages",
+              "Calls",
+              "Camera",
+              "Photos",
+            ],
             builder: (icon, size) {
               return Container(
                 constraints: BoxConstraints.tight(Size.square(size)),
@@ -43,11 +50,12 @@ class Dock<T extends Object> extends StatefulWidget {
   const Dock({
     super.key,
     this.items = const [],
+    this.itemNames = const [],
     required this.builder,
   });
 
   final List<T> items;
-
+  final List<String> itemNames;
   final Widget Function(T item, double size) builder;
 
   @override
@@ -61,7 +69,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 700), // Zmienione na 700 ms
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -104,8 +112,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                   onEnter: (_) => setState(() => _hoveredIndex = index),
                   onExit: (_) => setState(() => _hoveredIndex = null),
                   child: AnimatedPadding(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOut,
+                    duration: const Duration(milliseconds: 700), // 700 ms
+                    curve: Curves.easeInOut,
                     padding: EdgeInsets.only(
                       top: isHovered
                           ? 0
@@ -115,7 +123,30 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      child: widget.builder(item, iconSize),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          widget.builder(item, iconSize),
+                          if (isHovered) ...[
+                            Positioned(
+                              top: -35, // Przesunięcie tekstu w górę o 35px
+                              left: 0,
+                              right: 0,
+                              child: Text(
+                                widget.itemNames[
+                                    index], // Nazwa wyświetlana nad ikoną
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize:
+                                      12, // Zmieniono rozmiar tekstu na 12
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
                 );
